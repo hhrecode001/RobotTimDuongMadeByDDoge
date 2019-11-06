@@ -1,0 +1,135 @@
+#include <iostream>
+#include <queue>
+#include <stack>
+
+#define MAX 100000
+
+using namespace std;
+
+struct tt
+{
+	int robot1,robot2;
+};
+
+stack <tt> s;
+queue <tt> q;
+int n,m,a,b,c,d,r,ok;
+int dt[101][101],D[101][101];
+tt banDau;
+tt check[101][101];
+void nhapDuLieu()
+{
+	int x,y,w;
+	cin>>n>>m;
+	for (int i=1; i<=m; i++)
+	{
+		cin>>x>>y>>w;
+		dt[x][y]=w;
+		dt[y][x]=w;
+	}
+	cin>>a>>b>>c>>d>>r;
+}
+void floyd()
+{
+	for (int i=1; i<=n; i++)
+		for (int j=1; j<=n; j++)
+		{
+			if (dt[i][j]==0) 
+			{
+				D[i][j]=MAX;
+
+			}		
+			else D[i][j]=dt[i][j];
+		}
+	for (int i=1; i<=n; i++)
+		D[i][i]=0;
+	for (int k=1; k<=n; k++)
+		for (int i=1; i<=n; i++)
+			for (int j=1; j<=n; j++)
+			{
+				if (D[i][j]>D[i][k]+D[k][j]) D[i][j]=D[i][k]+D[k][j];	
+			}
+}
+void BFS()
+{
+	for (int i=1; i<=n; i++)
+		for (int j=1; j<=n; j++)
+			{
+				check[i][j].robot1=MAX;
+				check[i][j].robot2=MAX;
+			}
+	banDau.robot1=a;
+	banDau.robot2=b;
+	q.push(banDau);
+	check[a][b].robot1=-1;
+	check[a][b].robot2=-1;
+	while(!q.empty())
+	{
+		tt temp,x;
+		temp=q.front();
+		q.pop();
+		for (int i=1; i<=n; i++)
+		if (dt[i][temp.robot2]!=0)
+		{
+			if ( (D[temp.robot1][i]>r) && (check[temp.robot1][i].robot1==MAX)) 
+			{
+				x.robot1=temp.robot1;
+				x.robot2=i;
+				q.push(x);
+				check[temp.robot1][i]=temp;
+				if ((x.robot1=c) && (x.robot2=d))
+				{
+					ok=1;
+					break;
+				}
+			}
+		}
+		
+		for (int i=1; i<=n; i++)
+		if ((dt[i][temp.robot1]!=0))
+		{
+			if ( (D[i][temp.robot2]>r) && (check[i][temp.robot2].robot1==MAX)) 
+			{
+				x.robot1=i;
+				x.robot2=temp.robot2;
+				q.push(x);
+				check[i][temp.robot2]=temp;
+				if ((x.robot1=c) && (x.robot2=d))
+				{
+					ok=1;
+					break;
+				}
+			}
+		}
+		
+		
+	}
+	if (ok) 
+	{
+		tt x;
+		tt temp;
+		temp.robot1=c;
+		temp.robot2=d;
+		s.push(temp);
+		while ((temp.robot1!=a)||(temp.robot2!=b))
+		{
+			temp=check[temp.robot1][temp.robot2];
+			s.push(temp);
+		}
+		while (!s.empty())
+		{
+			x=s.top();
+			cout<<x.robot1<<"---"<<x.robot2<<"\n";
+			s.pop();
+		}
+		
+	}
+}
+main()
+{
+	freopen("input.txt","r",stdin);
+	nhapDuLieu();
+	floyd();
+	BFS();
+
+}
